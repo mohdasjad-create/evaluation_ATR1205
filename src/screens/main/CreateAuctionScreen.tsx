@@ -11,7 +11,6 @@ import {
   Platform,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {createAuctionApi} from '../../api/create-auction.api';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {useTheme, useThemeMode} from '../../hooks/useTheme';
@@ -28,8 +27,10 @@ const CreateAuctionScreen: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startingPrice, setStartingPrice] = useState('');
-  const [date, setDate] = useState(new Date(Date.now() + 5 * 60 * 1000)); // Default to 5m from now
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [durationDays, setDurationDays] = useState('0');
+  const [durationHours, setDurationHours] = useState('0');
+  const [durationMinutes, setDurationMinutes] = useState('5');
+  const [durationSeconds, setDurationSeconds] = useState('0');
   const [isLoading, setIsLoading] = useState(false);
 
   useFocusEffect(
@@ -37,7 +38,10 @@ const CreateAuctionScreen: React.FC = () => {
       setTitle('');
       setDescription('');
       setStartingPrice('');
-      setDate(new Date(Date.now() + 5 * 60 * 1000));
+      setDurationDays('0');
+      setDurationHours('0');
+      setDurationMinutes('5');
+      setDurationSeconds('0');
     }, [])
   );
 
@@ -53,13 +57,26 @@ const CreateAuctionScreen: React.FC = () => {
       return;
     }
 
+    const days = parseInt(durationDays || '0', 10);
+    const hrs = parseInt(durationHours || '0', 10);
+    const mins = parseInt(durationMinutes || '0', 10);
+    const secs = parseInt(durationSeconds || '0', 10);
+    const totalSeconds = days * 86400 + hrs * 3600 + mins * 60 + secs;
+
+    if (totalSeconds < 30) {
+      Alert.alert('Error', 'Minimum auction duration is 30 seconds');
+      return;
+    }
+
+    const endsAt = new Date(Date.now() + totalSeconds * 1000);
+
     setIsLoading(true);
     try {
       await createAuctionApi({
         title,
         description,
         startingPrice: price,
-        endsAt: date.toISOString(),
+        endsAt: endsAt.toISOString(),
       });
       Alert.alert('Success', 'Auction created successfully!', [
         {text: 'OK', onPress: () => navigation.navigate('Auctions')},
@@ -71,26 +88,24 @@ const CreateAuctionScreen: React.FC = () => {
     }
   };
 
-  const onChangeDate = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
-  };
+  const handleDurationChange = (type: 'day' | 'hr' | 'min' | 'sec', text: string) => {
+    const filtered = text.replace(/[^0-9]/g, '');
+    const val = parseInt(filtered || '0', 10);
 
-  const formatRelativeTime = (targetDate: Date) => {
-    const now = new Date();
-    const diff = targetDate.getTime() - now.getTime();
-    
-    if (diff <= 0) return 'Invalid time (must be in future)';
-    
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    
-    if (days > 0) return `Starts for ${days}d ${hours % 24}h ${minutes % 60}m`;
-    if (hours > 0) return `Starts for ${hours}h ${minutes % 60}m`;
-    return `Starts for ${minutes}m`;
+    switch (type) {
+      case 'day':
+        setDurationDays(filtered);
+        break;
+      case 'hr':
+        setDurationHours(val > 23 ? '23' : filtered);
+        break;
+      case 'min':
+        setDurationMinutes(val > 59 ? '59' : filtered);
+        break;
+      case 'sec':
+        setDurationSeconds(val > 59 ? '59' : filtered);
+        break;
+    }
   };
 
   const handlePriceChange = (text: string) => {
@@ -160,35 +175,108 @@ const CreateAuctionScreen: React.FC = () => {
             editable={!isLoading}
           />
 
-          <Text style={[styles.label, {color: colors.secondary}]}>Ends At</Text>
-          <TouchableOpacity
-            style={[
-              styles.dateSelector,
-              {
-                backgroundColor: colors.card,
-                borderColor: colors.border,
-                ...(mode === 'dark' ? shadows.small : shadows.small)
-              }
-            ]}
-            onPress={() => setShowDatePicker(true)}
-            disabled={isLoading}>
-            <Text style={[styles.dateText, {color: colors.text}]}>{date.toLocaleString()}</Text>
-          </TouchableOpacity>
-          <Text style={[styles.relativeTime, {color: colors.secondary}]}>
-            ⏱️ {formatRelativeTime(date)}
-          </Text>
+          <Text style={[styles.label, {color: colors.secondary}]}>Duration (Timer)</Text>
+          <View style={styles.durationGrid}>
+            {/* Days */}
+            <View style={styles.durationInputWrapper}>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.durationInput,
+                  {
+                    backgroundColor: colors.card,
+                    color: colors.text,
+                    borderColor: colors.border,
+                    ...(mode === 'dark' ? shadows.small : shadows.small)
+                  }
+                ]}
+                placeholder="0"
+                placeholderTextColor={colors.textMuted}
+                value={durationDays}
+                onChangeText={(text) => handleDurationChange('day', text)}
+                keyboardType="number-pad"
+                maxLength={2}
+                editable={!isLoading}
+              />
+              <Text style={[styles.durationLabel, {color: colors.textMuted}]}>DAYS</Text>
+            </View>
 
-          {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="datetime"
-              is24Hour={true}
-              display="default"
-              onChange={onChangeDate}
-              minimumDate={new Date()}
-              themeVariant={mode}
-            />
-          )}
+            {/* Hours */}
+            <View style={styles.durationInputWrapper}>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.durationInput,
+                  {
+                    backgroundColor: colors.card,
+                    color: colors.text,
+                    borderColor: colors.border,
+                    ...(mode === 'dark' ? shadows.small : shadows.small)
+                  }
+                ]}
+                placeholder="0"
+                placeholderTextColor={colors.textMuted}
+                value={durationHours}
+                onChangeText={(text) => handleDurationChange('hr', text)}
+                keyboardType="number-pad"
+                maxLength={2}
+                editable={!isLoading}
+              />
+              <Text style={[styles.durationLabel, {color: colors.textMuted}]}>HOURS</Text>
+            </View>
+
+            {/* Minutes */}
+            <View style={styles.durationInputWrapper}>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.durationInput,
+                  {
+                    backgroundColor: colors.card,
+                    color: colors.text,
+                    borderColor: colors.border,
+                    ...(mode === 'dark' ? shadows.small : shadows.small)
+                  }
+                ]}
+                placeholder="0"
+                placeholderTextColor={colors.textMuted}
+                value={durationMinutes}
+                onChangeText={(text) => handleDurationChange('min', text)}
+                keyboardType="number-pad"
+                maxLength={2}
+                editable={!isLoading}
+              />
+              <Text style={[styles.durationLabel, {color: colors.textMuted}]}>MINS</Text>
+            </View>
+
+            {/* Seconds */}
+            <View style={styles.durationInputWrapper}>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.durationInput,
+                  {
+                    backgroundColor: colors.card,
+                    color: colors.text,
+                    borderColor: colors.border,
+                    ...(mode === 'dark' ? shadows.small : shadows.small)
+                  }
+                ]}
+                placeholder="0"
+                placeholderTextColor={colors.textMuted}
+                value={durationSeconds}
+                onChangeText={(text) => handleDurationChange('sec', text)}
+                keyboardType="number-pad"
+                maxLength={2}
+                editable={!isLoading}
+              />
+              <Text style={[styles.durationLabel, {color: colors.textMuted}]}>SECS</Text>
+            </View>
+          </View>
+
+          <Text style={[styles.relativeTime, {color: colors.secondary}]}>
+            ⏱️ Auction duration: {durationDays || '0'}d {durationHours || '0'}h {durationMinutes || '0'}m {durationSeconds || '0'}s
+          </Text>
 
           <TouchableOpacity
             style={[
@@ -262,6 +350,36 @@ const styles = StyleSheet.create({
   dateText: {
     color: '#FFFFFF',
     fontSize: 16,
+  },
+  durationGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  durationInputWrapper: {
+    flex: 1,
+    minWidth: '22%',
+    alignItems: 'center',
+    gap: 8,
+  },
+  durationInput: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '700',
+    padding: 12,
+  },
+  durationLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#9CA3AF',
+    textTransform: 'uppercase',
+    marginTop: 4,
+  },
+  durationSeparator: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginTop: -24,
   },
   createButton: {
     backgroundColor: '#6366F1',
