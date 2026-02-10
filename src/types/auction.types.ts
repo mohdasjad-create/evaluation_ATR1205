@@ -37,6 +37,7 @@ export interface Auction {
   version: number;
   creator: Creator;
   winner: Creator | null;
+  imageUrl?: string;
 }
 
 export interface AuctionWithBids extends Auction {

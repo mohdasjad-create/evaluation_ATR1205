@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import {useTheme} from '../hooks/useTheme';
 import type {Bid} from '../types/auction.types';
 
 interface BidHistoryItemProps {
@@ -29,8 +30,9 @@ const getEmailUsername = (email: string): string => {
 };
 
 const BidHistoryItem: React.FC<BidHistoryItemProps> = ({bid, isHighestBid}) => {
+  const colors = useTheme();
   return (
-    <View style={[styles.container, isHighestBid && styles.highestBid]}>
+    <View style={[styles.container, isHighestBid && styles.highestBid, {borderBottomColor: colors.border}]}>
       <View style={styles.leftSection}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
@@ -38,13 +40,13 @@ const BidHistoryItem: React.FC<BidHistoryItemProps> = ({bid, isHighestBid}) => {
           </Text>
         </View>
         <View style={styles.bidderInfo}>
-          <Text style={styles.bidderName}>
+          <Text style={[styles.bidderName, {color: colors.text}]}>
             {getEmailUsername(bid.bidder.email)}
             {isHighestBid && (
               <Text style={styles.highestLabel}> · Highest</Text>
             )}
           </Text>
-          <Text style={styles.bidTime}>{formatTime(bid.createdAt)}</Text>
+          <Text style={[styles.bidTime, {color: colors.textMuted}]}>{formatTime(bid.createdAt)}</Text>
         </View>
       </View>
       <Text style={[styles.amount, isHighestBid && styles.highestAmount]}>

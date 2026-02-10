@@ -48,7 +48,7 @@ const WonAuctionsScreen: React.FC = () => {
       <Text style={[styles.description, {color: colors.textMuted}]} numberOfLines={2}>
         {item.description}
       </Text>
-      <View style={styles.cardFooter}>
+      <View style={[styles.cardFooter, {borderTopColor: colors.border}]}>
         <Text style={[styles.dateLabel, {color: colors.textMuted}]}>Won on:</Text>
         <Text style={[styles.dateValue, {color: colors.text}]}>
           {new Date(item.soldAt).toLocaleDateString()}

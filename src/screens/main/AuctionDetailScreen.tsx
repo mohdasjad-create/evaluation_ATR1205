@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Image,
+  ImageStyle,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAppDispatch, useAppSelector} from '../../store/store';
@@ -149,21 +151,21 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
 
   if (isLoading && !auction) {
     return (
-      <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator color="#A78BFA" size="large" />
-        <Text style={styles.loadingText}>Loading auction...</Text>
+      <View style={[styles.container, styles.centered, {backgroundColor: colors.background}]}>
+        <ActivityIndicator color={colors.primary} size="large" />
+        <Text style={[styles.loadingText, {color: colors.textMuted}]}>Loading auction...</Text>
       </View>
     );
   }
 
   if (error && !auction) {
     return (
-      <View style={[styles.container, styles.centered]}>
+      <View style={[styles.container, styles.centered, {backgroundColor: colors.background}]}>
         <Text style={styles.errorIcon}>⚠️</Text>
-        <Text style={styles.errorTitle}>Failed to load</Text>
-        <Text style={styles.errorMessage}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={handleRefresh}>
-          <Text style={styles.retryButtonText}>Try Again</Text>
+        <Text style={[styles.errorTitle, {color: colors.text}]}>Failed to load</Text>
+        <Text style={[styles.errorMessage, {color: colors.error}]}>{error}</Text>
+        <TouchableOpacity style={[styles.retryButton, {backgroundColor: colors.primary}]} onPress={handleRefresh}>
+          <Text style={[styles.retryButtonText, {color: '#FFFFFF'}]}>Try Again</Text>
         </TouchableOpacity>
       </View>
     );
@@ -179,13 +181,13 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
   return (
     <View style={[styles.container, {backgroundColor: colors.background}]}>
       {/* Header */}
-      <View style={[styles.header, {paddingTop: insets.top + 8}]}>
+      <View style={[styles.header, {paddingTop: insets.top + 8, borderBottomColor: colors.border}]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, {backgroundColor: colors.card}]}
           onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={[styles.backButtonText, {color: colors.text}]}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Auction Details</Text>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>Auction Details</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -200,9 +202,17 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
             tintColor="#A78BFA"
           />
         }>
-        {/* Image Placeholder */}
-        <View style={styles.imagePlaceholder}>
-          <Text style={styles.placeholderIcon}>🏷️</Text>
+        {/* Image Section */}
+        <View style={[styles.imageContainer, {backgroundColor: colors.card}]}>
+          <Image
+            source={{
+              uri: (auction.imageUrl && typeof auction.imageUrl === 'string' && auction.imageUrl.startsWith('http'))
+                ? auction.imageUrl
+                : `https://loremflickr.com/600/400/abstract?lock=${auction.id}`
+            }}
+            style={styles.image as ImageStyle}
+            resizeMode="cover"
+          />
           <View style={[styles.statusBadge, {backgroundColor: statusColors.bg}]}>
             <Text style={[styles.statusText, {color: statusColors.text}]}>
               {auction.status.charAt(0).toUpperCase() + auction.status.slice(1)}
@@ -212,12 +222,12 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
 
         {/* Title & Description */}
         <View style={styles.infoSection}>
-          <Text style={styles.title}>{auction.title}</Text>
-          <Text style={styles.description}>{auction.description}</Text>
+          <Text style={[styles.title, {color: colors.text}]}>{auction.title}</Text>
+          <Text style={[styles.description, {color: colors.textMuted}]}>{auction.description}</Text>
 
           {/* Creator */}
           <View style={styles.creatorRow}>
-            <Text style={styles.creatorLabel}>Listed by</Text>
+            <Text style={[styles.creatorLabel, {color: colors.textMuted}]}>Listed by</Text>
             <Text style={styles.creatorName}>
               {getEmailUsername(auction.creator.email)}
             </Text>
@@ -235,29 +245,29 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
         ]}>
           <View style={styles.priceRow}>
             <View>
-              <Text style={styles.priceLabel}>Current Bid</Text>
+              <Text style={[styles.priceLabel, {color: colors.textMuted}]}>Current Bid</Text>
               <Text style={styles.currentPrice}>
                 {formatPrice(auction.currentPrice)}
               </Text>
             </View>
             {isActive && (
               <View style={styles.timeContainer}>
-                <Text style={styles.timeLabel}>Ends in</Text>
+                <Text style={[styles.timeLabel, {color: colors.textMuted}]}>Ends in</Text>
                 <Text style={styles.timeValue}>{timeRemaining}</Text>
               </View>
             )}
           </View>
 
-          <View style={styles.priceDetails}>
+          <View style={[styles.priceDetails, {borderTopColor: colors.border}]}>
             <View style={styles.priceDetailItem}>
-              <Text style={styles.priceDetailLabel}>Starting Price</Text>
-              <Text style={styles.priceDetailValue}>
+              <Text style={[styles.priceDetailLabel, {color: colors.textMuted}]}>Starting Price</Text>
+              <Text style={[styles.priceDetailValue, {color: colors.text}]}>
                 {formatPrice(auction.startingPrice)}
               </Text>
             </View>
             <View style={styles.priceDetailItem}>
-              <Text style={styles.priceDetailLabel}>Total Bids</Text>
-              <Text style={styles.priceDetailValue}>{auction.bids.length}</Text>
+              <Text style={[styles.priceDetailLabel, {color: colors.textMuted}]}>Total Bids</Text>
+              <Text style={[styles.priceDetailValue, {color: colors.text}]}>{auction.bids.length}</Text>
             </View>
           </View>
         </View>
@@ -284,10 +294,10 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
 
         {/* Bid History */}
         <View style={styles.bidHistorySection}>
-          <Text style={styles.sectionTitle}>Bid History</Text>
+          <Text style={[styles.sectionTitle, {color: colors.text}]}>Bid History</Text>
           {auction.bids.length === 0 ? (
-            <View style={styles.noBids}>
-              <Text style={styles.noBidsText}>No bids yet. Be the first!</Text>
+            <View style={[styles.noBids, {backgroundColor: colors.card}]}>
+              <Text style={[styles.noBidsText, {color: colors.textMuted}]}>No bids yet. Be the first!</Text>
             </View>
           ) : (
             auction.bids.map((bid, index) => (
@@ -303,12 +313,12 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
 
       {/* Place Bid Button */}
       {isActive && (
-        <View style={[styles.bottomBar, {paddingBottom: insets.bottom + 16}]}>
+        <View style={[styles.bottomBar, {backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + 16}]}>
           <TouchableOpacity
-            style={styles.bidButton}
+            style={[styles.bidButton, {backgroundColor: colors.primary}]}
             onPress={handleOpenBidModal}
             activeOpacity={0.8}>
-            <Text style={styles.bidButtonText}>Place Bid</Text>
+            <Text style={[styles.bidButtonText, {color: '#FFFFFF'}]}>Place Bid</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -402,12 +412,14 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 100,
   },
-  imagePlaceholder: {
+  imageContainer: {
     height: 220,
     backgroundColor: '#1A1A2E',
-    justifyContent: 'center',
-    alignItems: 'center',
     position: 'relative',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
   placeholderIcon: {
     fontSize: 64,

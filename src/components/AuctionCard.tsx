@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image, ImageStyle} from 'react-native';
 import type {Auction} from '../types/auction.types';
 import {useTheme, useThemeMode} from '../hooks/useTheme';
 import {shadows} from '../theme/shadows';
@@ -93,11 +93,17 @@ const AuctionCard: React.FC<AuctionCardProps> = ({auction, onPress}) => {
       ]}
       onPress={onPress}
       activeOpacity={0.85}>
-      {/* Image Placeholder */}
-      <View style={[styles.imagePlaceholder, {backgroundColor: colors.surfaceLight}]}>
-        <View style={[styles.imageGradient, {backgroundColor: colors.primary + '1A'}]}>
-          <Text style={[styles.placeholderIcon, {color: colors.textMuted}]}>🏷️</Text>
-        </View>
+      {/* Image Section */}
+      <View style={[styles.imageContainer, {backgroundColor: colors.surfaceLight}]}>
+        <Image
+          source={{
+            uri: (auction.imageUrl && typeof auction.imageUrl === 'string' && auction.imageUrl.startsWith('http'))
+              ? auction.imageUrl
+              : `https://loremflickr.com/600/400/abstract?lock=${auction.id}`
+          }}
+          style={styles.image as ImageStyle}
+          resizeMode="cover"
+        />
         {/* Status Badge */}
         <View
           style={[styles.statusBadge, {backgroundColor: statusColors.bg}]}>
@@ -169,16 +175,14 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
   },
-  imagePlaceholder: {
+  imageContainer: {
     height: 140,
     backgroundColor: '#1A1A2E',
     position: 'relative',
   },
-  imageGradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+  image: {
+    width: '100%',
+    height: '100%',
   },
   placeholderIcon: {
     fontSize: 40,
