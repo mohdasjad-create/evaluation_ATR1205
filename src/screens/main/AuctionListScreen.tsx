@@ -20,7 +20,8 @@ import {
 } from '../../store/slices/auctionSlice';
 import {logoutUser} from '../../store/slices/authSlice';
 import AuctionCard from '../../components/AuctionCard';
-import {useTheme} from '../../hooks/useTheme';
+import {useTheme, useThemeMode} from '../../hooks/useTheme';
+import {shadows} from '../../theme/shadows';
 import type {Auction, AuctionStatus} from '../../types/auction.types';
 import type {MainStackParamList} from '../../navigation/RootNavigator';
 
@@ -39,6 +40,7 @@ const AuctionListScreen: React.FC = () => {
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const insets = useSafeAreaInsets();
   const colors = useTheme();
+  const mode = useThemeMode();
   const {user} = useAppSelector(state => state.auth);
   const {
     auctions,
@@ -108,7 +110,11 @@ const AuctionListScreen: React.FC = () => {
             key={option.value}
             style={[
               styles.filterTab,
-              {backgroundColor: colors.surfaceLight, borderColor: colors.border},
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                ...(mode === 'dark' ? shadows.small : shadows.small)
+              },
               statusFilter === option.value && {backgroundColor: colors.secondary + '33', borderColor: colors.secondary},
             ]}
             onPress={() => handleFilterChange(option.value)}>

@@ -67,6 +67,12 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setLocalError('Please enter a valid email address');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setLocalError('Passwords do not match');
       return;

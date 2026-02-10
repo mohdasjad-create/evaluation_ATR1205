@@ -8,7 +8,8 @@ import {
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAppSelector} from '../../store/store';
-import {useTheme} from '../../hooks/useTheme';
+import {useTheme, useThemeMode} from '../../hooks/useTheme';
+import {shadows} from '../../theme/shadows';
 import {WonAuction} from '../../api/user.api';
 
 const formatPrice = (price: string): string => {
@@ -23,11 +24,19 @@ const formatPrice = (price: string): string => {
 const WonAuctionsScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const colors = useTheme();
+  const mode = useThemeMode();
   const {profile} = useAppSelector(state => state.user);
   const wonAuctions = profile?.wonAuctions || [];
 
   const renderWonAuctionCard = ({item}: {item: WonAuction}) => (
-    <View style={[styles.card, {backgroundColor: colors.surface, borderColor: colors.border}]}>
+    <View style={[
+      styles.card,
+      {
+        backgroundColor: colors.card,
+        borderColor: colors.border,
+        ...(mode === 'dark' ? shadows.darkMedium : shadows.medium)
+      }
+    ]}>
       <View style={styles.cardHeader}>
         <Text style={[styles.title, {color: colors.text}]} numberOfLines={1}>
           {item.title}

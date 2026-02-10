@@ -15,6 +15,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {createAuctionApi} from '../../api/create-auction.api';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {useTheme, useThemeMode} from '../../hooks/useTheme';
+import {shadows} from '../../theme/shadows';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {TabParamList} from '../../navigation/RootNavigator';
 
@@ -77,6 +78,32 @@ const CreateAuctionScreen: React.FC = () => {
     }
   };
 
+  const formatRelativeTime = (targetDate: Date) => {
+    const now = new Date();
+    const diff = targetDate.getTime() - now.getTime();
+    
+    if (diff <= 0) return 'Invalid time (must be in future)';
+    
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) return `Starts for ${days}d ${hours % 24}h ${minutes % 60}m`;
+    if (hours > 0) return `Starts for ${hours}h ${minutes % 60}m`;
+    return `Starts for ${minutes}m`;
+  };
+
+  const handlePriceChange = (text: string) => {
+    // Only allow numbers and one decimal point
+    const filtered = text.replace(/[^0-9.]/g, '');
+    const parts = filtered.split('.');
+    if (parts.length > 2) {
+      setStartingPrice(parts[0] + '.' + parts.slice(1).join(''));
+    } else {
+      setStartingPrice(filtered);
+    }
+  };
+
   return (
     <View style={[styles.container, {backgroundColor: colors.background, paddingTop: insets.top}]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -95,7 +122,16 @@ const CreateAuctionScreen: React.FC = () => {
 
           <Text style={[styles.label, {color: colors.secondary}]}>Description</Text>
           <TextInput
-            style={[styles.input, styles.textArea, {backgroundColor: colors.surface, color: colors.text, borderColor: colors.border}]}
+            style={[
+              styles.input,
+              styles.textArea,
+              {
+                backgroundColor: colors.card,
+                color: colors.text,
+                borderColor: colors.border,
+                ...(mode === 'dark' ? shadows.small : shadows.small)
+              }
+            ]}
             placeholder="Describe your item..."
             placeholderTextColor={colors.textMuted}
             value={description}
@@ -107,22 +143,40 @@ const CreateAuctionScreen: React.FC = () => {
 
           <Text style={[styles.label, {color: colors.secondary}]}>Starting Price ($)</Text>
           <TextInput
-            style={[styles.input, {backgroundColor: colors.surface, color: colors.text, borderColor: colors.border}]}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.card,
+                color: colors.text,
+                borderColor: colors.border,
+                ...(mode === 'dark' ? shadows.small : shadows.small)
+              }
+            ]}
             placeholder="0.00"
             placeholderTextColor={colors.textMuted}
             value={startingPrice}
-            onChangeText={setStartingPrice}
+            onChangeText={handlePriceChange}
             keyboardType="decimal-pad"
             editable={!isLoading}
           />
 
           <Text style={[styles.label, {color: colors.secondary}]}>Ends At</Text>
           <TouchableOpacity
-            style={[styles.dateSelector, {backgroundColor: colors.surface, borderColor: colors.border}]}
+            style={[
+              styles.dateSelector,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                ...(mode === 'dark' ? shadows.small : shadows.small)
+              }
+            ]}
             onPress={() => setShowDatePicker(true)}
             disabled={isLoading}>
             <Text style={[styles.dateText, {color: colors.text}]}>{date.toLocaleString()}</Text>
           </TouchableOpacity>
+          <Text style={[styles.relativeTime, {color: colors.secondary}]}>
+            ⏱️ {formatRelativeTime(date)}
+          </Text>
 
           {showDatePicker && (
             <DateTimePicker
@@ -137,7 +191,14 @@ const CreateAuctionScreen: React.FC = () => {
           )}
 
           <TouchableOpacity
-            style={[styles.createButton, {backgroundColor: colors.primary}, isLoading && styles.buttonDisabled]}
+            style={[
+              styles.createButton,
+              {
+                backgroundColor: colors.primary,
+                ...(mode === 'dark' ? shadows.darkMedium : shadows.medium)
+              },
+              isLoading && styles.buttonDisabled
+            ]}
             onPress={handleCreate}
             disabled={isLoading}>
             {isLoading ? (
@@ -223,6 +284,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '700',
+  },
+  relativeTime: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginTop: -8,
+    marginLeft: 4,
   },
 });
 

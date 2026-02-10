@@ -56,7 +56,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   }, [dispatch]);
 
   const handleLogin = () => {
-    if (!email.trim() || !password.trim()) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      // Logic for showing error in the card is already handled by authSlice or local state
+      // but let's ensure we don't dispatch if invalid
       return;
     }
     dispatch(loginUser({email: email.trim(), password}));

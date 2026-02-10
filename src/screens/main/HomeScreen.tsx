@@ -11,6 +11,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAppDispatch, useAppSelector} from '../../store/store';
 import {logoutUser} from '../../store/slices/authSlice';
 import {useTheme, useThemeMode} from '../../hooks/useTheme';
+import {shadows} from '../../theme/shadows';
 
 const HomeScreen: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -53,7 +54,14 @@ const HomeScreen: React.FC = () => {
 
       {/* Main Content */}
       <View style={styles.content}>
-        <View style={[styles.card, {backgroundColor: colors.surface, borderColor: colors.border}]}>
+        <View style={[
+          styles.card,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+            ...(mode === 'dark' ? shadows.darkMedium : shadows.medium)
+          }
+        ]}>
           <Text style={styles.cardIcon}>🎉</Text>
           <Text style={[styles.cardTitle, {color: colors.text}]}>You're all set!</Text>
           <Text style={[styles.cardSubtitle, {color: colors.textMuted}]}>
@@ -63,15 +71,36 @@ const HomeScreen: React.FC = () => {
 
         {/* Stats Preview */}
         <View style={styles.statsContainer}>
-          <View style={[styles.statCard, {backgroundColor: colors.primary + '26', borderColor: colors.primary + '33'}]}>
+          <View style={[
+            styles.statCard,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              ...(mode === 'dark' ? shadows.small : shadows.small)
+            }
+          ]}>
             <Text style={[styles.statValue, {color: colors.secondary}]}>0</Text>
             <Text style={[styles.statLabel, {color: colors.textMuted}]}>Active Bids</Text>
           </View>
-          <View style={[styles.statCard, {backgroundColor: colors.primary + '26', borderColor: colors.primary + '33'}]}>
+          <View style={[
+            styles.statCard,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              ...(mode === 'dark' ? shadows.small : shadows.small)
+            }
+          ]}>
             <Text style={[styles.statValue, {color: colors.secondary}]}>0</Text>
             <Text style={[styles.statLabel, {color: colors.textMuted}]}>Won Auctions</Text>
           </View>
-          <View style={[styles.statCard, {backgroundColor: colors.primary + '26', borderColor: colors.primary + '33'}]}>
+          <View style={[
+            styles.statCard,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              ...(mode === 'dark' ? shadows.small : shadows.small)
+            }
+          ]}>
             <Text style={[styles.statValue, {color: colors.secondary}]}>$0</Text>
             <Text style={[styles.statLabel, {color: colors.textMuted}]}>Total Spent</Text>
           </View>

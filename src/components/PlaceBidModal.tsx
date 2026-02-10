@@ -40,6 +40,16 @@ const PlaceBidModal: React.FC<PlaceBidModalProps> = ({
   const [bidAmount, setBidAmount] = useState('');
   const minBid = parseFloat(currentPrice) + 1;
 
+  const handleAmountChange = (text: string) => {
+    const filtered = text.replace(/[^0-9.]/g, '');
+    const parts = filtered.split('.');
+    if (parts.length > 2) {
+      setBidAmount(parts[0] + '.' + parts.slice(1).join(''));
+    } else {
+      setBidAmount(filtered);
+    }
+  };
+
   const handleSubmit = () => {
     const amount = parseFloat(bidAmount);
     if (amount && amount >= minBid) {
@@ -104,7 +114,7 @@ const PlaceBidModal: React.FC<PlaceBidModalProps> = ({
               placeholder="Enter bid amount"
               placeholderTextColor="#6B7280"
               value={bidAmount}
-              onChangeText={setBidAmount}
+              onChangeText={handleAmountChange}
               keyboardType="decimal-pad"
               autoFocus
               editable={!isLoading}

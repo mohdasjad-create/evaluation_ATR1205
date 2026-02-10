@@ -6,7 +6,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useAppDispatch, useAppSelector} from '../../store/store';
 import {fetchProfile} from '../../store/slices/userSlice';
 import {logoutUser} from '../../store/slices/authSlice';
-import {useTheme} from '../../hooks/useTheme';
+import {useTheme, useThemeMode} from '../../hooks/useTheme';
+import {shadows} from '../../theme/shadows';
 import {MainStackParamList} from '../../navigation/RootNavigator';
 
 const formatPrice = (price: string): string => {
@@ -23,6 +24,7 @@ const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const insets = useSafeAreaInsets();
   const colors = useTheme();
+  const mode = useThemeMode();
   const {profile, isLoading, error} = useAppSelector((state) => state.user);
 
   useEffect(() => {
@@ -75,7 +77,14 @@ const ProfileScreen: React.FC = () => {
 
         {profile && (
           <>
-            <View style={[styles.profileCard, {backgroundColor: colors.surface, borderColor: colors.border}]}>
+            <View style={[
+              styles.profileCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                ...(mode === 'dark' ? shadows.darkMedium : shadows.medium)
+              }
+            ]}>
               <View style={[styles.avatar, {backgroundColor: colors.surfaceLight, borderColor: colors.secondary}]}>
                 <Text style={[styles.avatarText, {color: colors.secondary}]}>
                   {profile.email.charAt(0).toUpperCase()}
@@ -88,22 +97,52 @@ const ProfileScreen: React.FC = () => {
             </View>
 
             <View style={styles.statsContainer}>
-              <View style={[styles.statBox, {backgroundColor: colors.surface, borderColor: colors.secondary}]}>
+              <View style={[
+                styles.statBox,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                  ...(mode === 'dark' ? shadows.small : shadows.small)
+                }
+              ]}>
                 <Text style={[styles.statLabel, {color: colors.secondary}]}>Current Balance</Text>
                 <Text style={[styles.statValue, {color: colors.text}]}>{formatPrice(profile.balance)}</Text>
               </View>
             </View>
 
             <View style={styles.menuContainer}>
-              <TouchableOpacity style={[styles.menuItem, {backgroundColor: colors.surface}]} onPress={handleWonAuctions}>
+              <TouchableOpacity
+                style={[
+                  styles.menuItem,
+                  {
+                    backgroundColor: colors.card,
+                    ...(mode === 'dark' ? shadows.small : shadows.small)
+                  }
+                ]}
+                onPress={handleWonAuctions}>
                 <Text style={styles.menuIcon}>🏆</Text>
                 <Text style={[styles.menuText, {color: colors.text}]}>Won Auctions</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuItem, {backgroundColor: colors.surface}]}>
+              <TouchableOpacity
+                style={[
+                  styles.menuItem,
+                  {
+                    backgroundColor: colors.card,
+                    ...(mode === 'dark' ? shadows.small : shadows.small)
+                  }
+                ]}>
                 <Text style={styles.menuIcon}>📑</Text>
                 <Text style={[styles.menuText, {color: colors.text}]}>My Listings</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.menuItem, {backgroundColor: colors.surface}]} onPress={handleSettings}>
+              <TouchableOpacity
+                style={[
+                  styles.menuItem,
+                  {
+                    backgroundColor: colors.card,
+                    ...(mode === 'dark' ? shadows.small : shadows.small)
+                  }
+                ]}
+                onPress={handleSettings}>
                 <Text style={styles.menuIcon}>⚙️</Text>
                 <Text style={[styles.menuText, {color: colors.text}]}>Settings</Text>
               </TouchableOpacity>

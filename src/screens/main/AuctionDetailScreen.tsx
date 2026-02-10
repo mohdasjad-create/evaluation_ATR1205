@@ -19,6 +19,8 @@ import {
 import BidHistoryItem from '../../components/BidHistoryItem';
 import PlaceBidModal from '../../components/PlaceBidModal';
 import {useAuctionSocket} from '../../hooks/useAuctionSocket';
+import {useTheme, useThemeMode} from '../../hooks/useTheme';
+import {shadows} from '../../theme/shadows';
 import {
   useNavigation,
   useRoute,
@@ -84,6 +86,8 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
   const {auctionId} = route.params;
   const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
+  const colors = useTheme();
+  const mode = useThemeMode();
 
   const {auction, isLoading, isPlacingBid, error, bidError} = useAppSelector(
     state => state.auctionDetail,
@@ -173,7 +177,7 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
   const isActive = auction.status === 'active';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       {/* Header */}
       <View style={[styles.header, {paddingTop: insets.top + 8}]}>
         <TouchableOpacity
@@ -221,7 +225,14 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
         </View>
 
         {/* Price Card */}
-        <View style={styles.priceCard}>
+        <View style={[
+          styles.priceCard,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+            ...(mode === 'dark' ? shadows.darkMedium : shadows.medium)
+          }
+        ]}>
           <View style={styles.priceRow}>
             <View>
               <Text style={styles.priceLabel}>Current Bid</Text>
@@ -253,7 +264,14 @@ const AuctionDetailScreen: React.FC<Props> = ({route, navigation}) => {
 
         {/* Winner (if sold) */}
         {auction.status === 'sold' && auction.winner && (
-          <View style={styles.winnerCard}>
+          <View style={[
+            styles.winnerCard,
+            {
+              backgroundColor: colors.success + '1A',
+              borderColor: colors.success + '33',
+              ...(mode === 'dark' ? shadows.small : shadows.small)
+            }
+          ]}>
             <Text style={styles.winnerIcon}>🏆</Text>
             <View>
               <Text style={styles.winnerLabel}>Winner</Text>

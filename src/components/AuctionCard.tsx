@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import type {Auction} from '../types/auction.types';
-import {useTheme} from '../hooks/useTheme';
+import {useTheme, useThemeMode} from '../hooks/useTheme';
+import {shadows} from '../theme/shadows';
 
 interface AuctionCardProps {
   auction: Auction;
@@ -59,6 +60,7 @@ const formatTimeRemaining = (endsAt: string): string => {
 
 const AuctionCard: React.FC<AuctionCardProps> = ({auction, onPress}) => {
   const colors = useTheme();
+  const mode = useThemeMode();
   const [timeRemaining, setTimeRemaining] = useState(
     formatTimeRemaining(auction.endsAt),
   );
@@ -81,7 +83,14 @@ const AuctionCard: React.FC<AuctionCardProps> = ({auction, onPress}) => {
 
   return (
     <TouchableOpacity
-      style={[styles.card, {backgroundColor: colors.surface, borderColor: colors.border}]}
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+          ... (mode === 'dark' ? shadows.darkMedium : shadows.medium)
+        }
+      ]}
       onPress={onPress}
       activeOpacity={0.85}>
       {/* Image Placeholder */}
